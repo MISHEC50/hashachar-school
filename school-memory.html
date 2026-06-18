@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>זיכרונות תשפ"ו — ממ"ד השחר</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- ─── Firebase v9 compat CDN ─── -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<!-- ─── Client-side image compression ─── -->
+<script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+
+<style>
+/* =====================================================
+   DESIGN TOKENS
+   ===================================================== */
+:root {
+  --gold:    #FFD700;
+  --sky:     #87CEEB;
+  --coral:   #FF6B6B;
+  --mint:    #98D8C8;
+  --purple:  #C9B1FF;
+  --orange:  #FFB347;
+  --green:   #6BCB77;
+  --bg:      #FFF8F0;
+  --white:   #FFFFFF;
+  --text:    #2D3436;
+  --muted:   #636E72;
+  --border:  #E8E8E8;
+  --radius:  16px;
+  --shadow:  0 4px 22px rgba(0,0,0,0.09);
+  --shadow-h:0 10px 34px rgba(0,0,0,0.16);
+  --trans:   0.25s ease;
+}
+
+/* =====================================================
+   RESET + BASE
+   ===================================================== */
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+img { max-width: 100%; display: block; }
+
+/* =====================================================
+   CONFIG WARNING BANNER
+   ===================================================== */
+#config-warning {
+  display: none;
+  background: #FF6B6B;
+  color: #fff;
+  padding: 14px 24px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.6;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+}
+#config-warning a { color: #fff; text-decoration: underline; }
+
+/* =====================================================
+   NAV
+   ===================================================== */
+.nav {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(14px);
+  padding: 10px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+}
+.nav-logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.nav-btn {
+  background: var(--gold);
+  color: var(--text);
+  border: none;
+  padding: 9px 22px;
+  border-radius: 22px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.nav-btn:hover { background: #e6c200; transform: translateY(-1px); }
+
+/* =====================================================
+   PAGE TRANSITION
+   ===================================================== */
+.page { animation: fadeUp 0.33s ease; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+.hero {
+  position: relative;
+  background: linear-gradient(145deg,#FFF9E6 0%,#FFF0D4 35%,#E8F5FF 70%,#F0FFF8 100%);
+  padding: 84px 24px 68px;
+  text-align: center;
+  overflow: hidden;
+}
+#confetti-canvas {
+  position: absolute; inset:0;
+  width:100%; height:100%;
+  pointer-events: none;
+}
+.hero-content { position:relative; z-index:1; }
+.hero-badge {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--text);
+  padding: 5px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  letter-spacing: 0.4px;
+}
+.hero-title {
+  font-size: clamp(2.6rem,7vw,5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  text-shadow: 3px 3px 0 rgba(255,215,0,0.38);
+}
+.hero-subtitle {
+  font-size: clamp(1.4rem,3vw,2.1rem);
+  font-weight: 600;
+  color: #5D4037;
+  margin-bottom: 10px;
+}
+.hero-tagline { font-size:1.05rem; color: var(--muted); }
+.hero-deco {
+  margin-top: 26px;
+  font-size: 2.2rem;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  animation: float 3.2s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100%{ transform:translateY(0); }
+  50%    { transform:translateY(-9px); }
+}
+
+/* =====================================================
+   PRINCIPAL
+   ===================================================== */
+.principal-section {
+  max-width: 780px;
+  margin: 44px auto 0;
+  padding: 0 24px;
+}
+.principal-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 36px 40px;
+  box-shadow: var(--shadow);
+  border-right: 5px solid var(--gold);
+}
+.principal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.principal-avatar {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,var(--gold),var(--orange));
+  display: flex; align-items:center; justify-content:center;
+  font-size: 1.7rem;
+  flex-shrink: 0;
+}
+.principal-name { font-size:1.05rem; font-weight:800; }
+.principal-role { font-size:0.88rem; color:var(--muted); margin-top:2px; }
+.eyebrow {
+  font-size:0.73rem;
+  font-weight:700;
+  color: var(--muted);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.principal-text {
+  font-size:1.05rem;
+  line-height:1.88;
+  font-style:italic;
+}
+.principal-sig {
+  margin-top:18px;
+  font-weight:700;
+  font-style:normal;
+  color: var(--muted);
+  font-size:0.95rem;
+}
+
+/* =====================================================
+   CLASSES GRID
+   ===================================================== */
+.classes-section {
+  max-width: 1080px;
+  margin: 44px auto 64px;
+  padding: 0 24px;
+}
+.section-heading { text-align:center; margin-bottom:36px; }
+.section-heading h2 { font-size:1.9rem; font-weight:800; margin-bottom:8px; }
+.section-heading p  { font-size:1rem; color:var(--muted); }
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(195px,1fr));
+  gap: 20px;
+}
+.class-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px 18px 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform var(--trans), box-shadow var(--trans);
+  border-top: 4px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+.class-card::after {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(135deg,rgba(255,255,255,0) 50%,rgba(255,255,255,0.22) 100%);
+  opacity:0; transition:opacity var(--trans);
+}
+.class-card:hover { transform:translateY(-7px); box-shadow:var(--shadow-h); }
+.class-card:hover::after { opacity:1; }
+.class-emoji  { font-size:3.2rem; display:block; margin-bottom:12px; }
+.class-name   { font-size:1.35rem; font-weight:800; margin-bottom:16px; }
+.class-enter-btn {
+  display:inline-block;
+  padding:8px 20px;
+  border-radius:20px;
+  font-size:0.85rem; font-weight:700;
+  border:2.5px solid;
+  cursor:pointer; background:transparent;
+  transition:all 0.2s;
+}
+.class-card:hover .class-enter-btn { color:white !important; }
+
+/* =====================================================
+   CLASS PAGE
+   ===================================================== */
+.class-page-wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 24px 72px;
+}
+.back-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--white); border:2px solid var(--border); color:var(--text);
+  padding:10px 20px; border-radius:22px;
+  font-size:0.95rem; font-weight:600; cursor:pointer;
+  transition:all var(--trans); margin-bottom:28px;
+}
+.back-btn:hover { border-color:var(--gold); background:#FFFDE7; }
+
+.class-page-header { text-align:center; padding:16px 0 36px; }
+.class-page-emoji  { font-size:4.5rem; display:block; margin-bottom:12px; }
+.class-page-name   { font-size:clamp(2rem,5vw,3.2rem); font-weight:900; margin-bottom:6px; }
+.class-page-year   { font-size:1rem; color:var(--muted); }
+
+/* =====================================================
+   EXPERIENCES FEED
+   ===================================================== */
+.feed-heading {
+  font-size:1.5rem; font-weight:800;
+  margin-bottom:20px;
+  display:flex; align-items:center; gap:10px;
+}
+.experiences-feed { display:flex; flex-direction:column; gap:22px; margin-bottom:48px; }
+
+/* Loading pulse */
+.loading-pulse {
+  text-align:center; padding:48px 20px;
+  color:var(--muted); font-size:1.05rem;
+  background: var(--white); border-radius:var(--radius);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+.feed-error {
+  text-align:center; padding:36px 20px;
+  color:#C0392B; background:#FFF5F5;
+  border-radius:var(--radius); font-size:1rem;
+}
+
+/* Sample / empty placeholder */
+.placeholder-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  opacity: 0.75;
+  border: 2px dashed var(--border);
+}
+.placeholder-badge {
+  display:inline-block;
+  background:#F0F0F0; color:var(--muted);
+  font-size:0.75rem; font-weight:700;
+  padding:3px 10px; border-radius:10px;
+  margin-bottom:10px; letter-spacing:0.5px;
+}
+.empty-state {
+  text-align:center; padding:52px 20px;
+  color:var(--muted); font-size:1.05rem;
+  line-height:1.75;
+  background:var(--white); border-radius:var(--radius);
+  border:2px dashed var(--border);
+}
+
+/* Memory card */
+.memory-card {
+  background:var(--white); border-radius:var(--radius);
+  padding:28px; box-shadow:var(--shadow);
+  transition:box-shadow var(--trans);
+}
+.memory-card:hover { box-shadow:var(--shadow-h); }
+.memory-card-top {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:12px; flex-wrap:wrap; gap:8px;
+}
+.memory-title { font-size:1.2rem; font-weight:700; }
+.memory-date  {
+  font-size:0.82rem; color:var(--muted);
+  background:#F3F3F3; padding:4px 11px; border-radius:12px; white-space:nowrap;
+}
+.memory-desc {
+  font-size:1rem; line-height:1.78; white-space:pre-wrap; margin-bottom:14px;
+}
+.memory-photos { display:flex; flex-wrap:wrap; gap:8px; }
+.memory-photo {
+  width:100px; height:80px; object-fit:cover;
+  border-radius:8px; cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  border:2px solid transparent;
+}
+.memory-photo:hover { transform:scale(1.06); border-color:var(--gold); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+
+/* =====================================================
+   ADD BUTTON
+   ===================================================== */
+.add-exp-btn {
+  width:100%; padding:16px;
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  color:var(--text); border:none; border-radius:var(--radius);
+  font-size:1.1rem; font-weight:800; cursor:pointer;
+  transition:all var(--trans);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin-bottom:28px;
+}
+.add-exp-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(255,179,71,0.45); }
+
+/* =====================================================
+   UPLOAD FORM SECTION
+   ===================================================== */
+#upload-section {
+  display:none;
+  background:var(--white); border-radius:var(--radius);
+  padding:36px; box-shadow:var(--shadow);
+  border:2px dashed #DDDDDD;
+  animation: fadeUp 0.3s ease;
+}
+#upload-section.open { display:block; }
+.upload-heading {
+  font-size:1.4rem; font-weight:800; margin-bottom:26px;
+  display:flex; align-items:center; gap:10px;
+}
+.form-group { margin-bottom:20px; }
+.form-label { display:block; font-size:0.94rem; font-weight:600; margin-bottom:7px; }
+.form-label .req { color:var(--coral); margin-right:3px; }
+.form-input {
+  width:100%; padding:12px 15px;
+  border:2px solid var(--border); border-radius:10px;
+  font-family:'Heebo',sans-serif; font-size:1rem;
+  color:var(--text); direction:rtl;
+  background:#FAFAFA; transition:border-color var(--trans), background var(--trans);
+}
+.form-input:focus { outline:none; border-color:var(--gold); background:var(--white); }
+textarea.form-input { min-height:96px; resize:vertical; }
+
+.drop-zone {
+  border:2px dashed #C8C8C8; border-radius:12px;
+  padding:32px 20px; text-align:center; cursor:pointer;
+  transition:all var(--trans); background:#F8F8F8; position:relative;
+}
+.drop-zone:hover,.drop-zone.drag-over { border-color:var(--gold); background:#FFFDE7; }
+.drop-zone-icon { font-size:2.6rem; margin-bottom:8px; }
+.drop-zone-text { font-size:0.98rem; color:var(--muted); margin-bottom:5px; }
+.drop-zone-hint { font-size:0.82rem; color:#ABABAB; }
+.drop-zone input[type="file"] {
+  position:absolute; inset:0; opacity:0; cursor:pointer; width:100%;
+}
+.photo-previews { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.preview-item   { position:relative; width:82px; height:82px; }
+.preview-img    { width:100%; height:100%; object-fit:cover; border-radius:8px; }
+.preview-remove {
+  position:absolute; top:-7px; left:-7px;
+  width:22px; height:22px;
+  background:var(--coral); color:white; border:none; border-radius:50%;
+  font-size:0.7rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+.submit-btn {
+  width:100%; padding:15px;
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  color:var(--text); border:none; border-radius:12px;
+  font-size:1.1rem; font-weight:800; cursor:pointer;
+  transition:all var(--trans); margin-top:8px;
+}
+.submit-btn:hover  { transform:translateY(-2px); box-shadow:0 6px 18px rgba(255,179,71,0.45); }
+.submit-btn:active { transform:translateY(0); }
+.submit-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* =====================================================
+   MODALS (shared)
+   ===================================================== */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.55); z-index:800;
+  justify-content:center; align-items:center;
+  padding:20px;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:var(--white); border-radius:var(--radius);
+  padding:40px; max-width:420px; width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  text-align:center; animation:fadeUp 0.25s ease;
+}
+.modal-box h3 { font-size:1.4rem; font-weight:800; margin-bottom:10px; }
+.modal-box p  { font-size:0.97rem; color:var(--muted); margin-bottom:22px; line-height:1.6; }
+.modal-input {
+  width:100%; padding:13px 16px;
+  border:2px solid var(--border); border-radius:10px;
+  font-family:'Heebo',sans-serif; font-size:1.05rem;
+  text-align:center; letter-spacing:2px;
+  margin-bottom:18px; direction:ltr;
+  transition:border-color var(--trans);
+}
+.modal-input:focus { outline:none; border-color:var(--gold); }
+.modal-input.shake {
+  animation:shake 0.4s ease;
+  border-color:var(--coral) !important;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%,60%{transform:translateX(-6px)}
+  40%,80%{transform:translateX(6px)}
+}
+.modal-btn-row { display:flex; gap:12px; justify-content:center; }
+.modal-btn-primary {
+  flex:1; padding:12px;
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  color:var(--text); border:none; border-radius:10px;
+  font-size:1rem; font-weight:800; cursor:pointer;
+  transition:all var(--trans);
+}
+.modal-btn-primary:hover { opacity:0.88; }
+.modal-btn-cancel {
+  padding:12px 20px;
+  background:#F3F3F3; color:var(--muted);
+  border:none; border-radius:10px;
+  font-size:1rem; font-weight:600; cursor:pointer;
+  transition:all var(--trans);
+}
+.modal-btn-cancel:hover { background:var(--border); }
+
+/* =====================================================
+   UPLOAD PROGRESS OVERLAY
+   ===================================================== */
+#progress-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.65); z-index:900;
+  justify-content:center; align-items:center;
+}
+#progress-overlay.open { display:flex; }
+.progress-box {
+  background:var(--white); border-radius:var(--radius);
+  padding:40px 44px; text-align:center;
+  min-width:280px; box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.spinner {
+  width:52px; height:52px; border-radius:50%;
+  border:5px solid #E8E8E8;
+  border-top-color:var(--gold);
+  animation:spin 0.8s linear infinite;
+  margin:0 auto 20px;
+}
+@keyframes spin { to{ transform:rotate(360deg); } }
+.progress-msg {
+  font-size:1rem; font-weight:600; color:var(--text); margin-bottom:14px;
+}
+.progress-bar-track {
+  background:#EEEEEE; border-radius:8px; height:8px; overflow:hidden;
+}
+.progress-bar-fill {
+  background:linear-gradient(90deg,var(--gold),var(--orange));
+  height:100%; border-radius:8px;
+  transition:width 0.3s ease;
+  width:0%;
+}
+
+/* =====================================================
+   LIGHTBOX
+   ===================================================== */
+#lightbox {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.93); z-index:1000;
+  justify-content:center; align-items:center; flex-direction:column; gap:18px;
+}
+#lightbox.open { display:flex; }
+.lb-close {
+  position:absolute; top:18px; left:18px;
+  background:rgba(255,255,255,0.15); border:none; color:white;
+  width:46px; height:46px; border-radius:50%;
+  font-size:1.6rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--trans);
+}
+.lb-close:hover { background:rgba(255,255,255,0.28); }
+#lb-img {
+  max-width:90vw; max-height:74vh;
+  object-fit:contain; border-radius:8px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.lb-nav { display:flex; align-items:center; gap:22px; }
+.lb-btn {
+  background:rgba(255,255,255,0.18); border:none; color:white;
+  width:50px; height:50px; border-radius:50%;
+  font-size:1.4rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background var(--trans);
+}
+.lb-btn:hover { background:rgba(255,255,255,0.3); }
+#lb-counter { color:rgba(255,255,255,0.8); font-size:0.95rem; min-width:60px; text-align:center; }
+
+/* =====================================================
+   TOAST
+   ===================================================== */
+#toast {
+  position:fixed; bottom:28px; right:28px;
+  padding:13px 22px; border-radius:12px;
+  font-weight:700; font-size:1rem;
+  box-shadow:0 4px 18px rgba(0,0,0,0.18);
+  transform:translateY(80px); opacity:0;
+  transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:600; pointer-events:none; max-width:340px; line-height:1.4;
+}
+#toast.show { transform:translateY(0); opacity:1; }
+#toast.success { background:#27AE60; color:#fff; }
+#toast.error   { background:#E74C3C; color:#fff; }
+#toast.info    { background:#2980B9; color:#fff; }
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+.footer {
+  background:#2D3436; color:rgba(255,255,255,0.6);
+  text-align:center; padding:20px; font-size:0.88rem;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+@media(max-width:640px){
+  .hero{ padding:56px 16px 44px; }
+  .principal-card{ padding:22px 18px; }
+  .classes-grid{ grid-template-columns:repeat(2,1fr); gap:12px; }
+  .class-card{ padding:20px 10px; }
+  .class-emoji{ font-size:2.6rem; }
+  .class-page-wrap{ padding:16px 16px 60px; }
+  #upload-section{ padding:24px 16px; }
+  .memory-card{ padding:18px 16px; }
+  .memory-photo{ width:80px; height:64px; }
+  #toast{ right:14px; bottom:14px; }
+  .modal-box{ padding:28px 20px; }
+  .progress-box{ padding:28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CONFIG WARNING (shown automatically if config is placeholder)
+     ============================================================ -->
+<div id="config-warning">
+  ⚠️ Firebase לא מוגדר עדיין — עדכנו את <code>firebaseConfig</code> בתחילת קובץ ה-JS.
+  ראו הוראות בקוד. האתר לא יפעל עד שהתצורה תמולא.
+</div>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav">
+  <div class="nav-logo" onclick="showHome()">☀️ ממ"ד השחר</div>
+  <button class="nav-btn" onclick="showHome()">🏠 עמוד הבית</button>
+</nav>
+
+<!-- ============================================================
+     HOME PAGE
+     ============================================================ -->
+<div id="home-page" class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge">שנת תשפ"ו • 2025–2026</div>
+      <h1 class="hero-title">ממ"ד השחר</h1>
+      <p class="hero-subtitle">זיכרונות שנת תשפ"ו</p>
+      <p class="hero-tagline">ספר זיכרונות שנתי — שנה של צמיחה, למידה ושמחה</p>
+      <div class="hero-deco">🌟 ✨ 🌈 ✨ 🌟</div>
+    </div>
+  </section>
+
+  <!-- PRINCIPAL'S MESSAGE -->
+  <section class="principal-section">
+    <div class="principal-card">
+      <p class="eyebrow">דבר המנהל</p>
+      <div class="principal-header">
+        <div class="principal-avatar">👨‍🏫</div>
+        <div>
+          <div class="principal-name">אביתר כהן</div>
+          <div class="principal-role">מנהל ממ"ד השחר</div>
+        </div>
+      </div>
+
+      <!-- תצוגה רגילה -->
+      <p class="principal-text" id="principal-text-display">
+        לחצו על כפתור העריכה כדי להוסיף את דבר המנהל...
+      </p>
+      <p class="principal-sig" id="principal-sig-display" style="display:none">— אביתר כהן, מנהל בית הספר</p>
+
+      <!-- טופס עריכה (מוסתר כברירת מחדל) -->
+      <div id="principal-edit-form" style="display:none; margin-top:16px;">
+        <textarea id="principal-textarea"
+          style="width:100%;min-height:140px;padding:12px;border:2px solid var(--gold);border-radius:12px;font-family:inherit;font-size:1rem;direction:rtl;resize:vertical;"
+          placeholder="כתוב כאן את דבר המנהל..."></textarea>
+        <div style="margin-top:10px;display:flex;gap:10px;justify-content:flex-end;">
+          <button onclick="cancelPrincipalEdit()"
+            style="padding:8px 20px;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:inherit;font-size:0.95rem;">
+            ביטול
+          </button>
+          <button onclick="savePrincipalMessage()"
+            style="padding:8px 20px;border-radius:10px;border:none;background:var(--gold);cursor:pointer;font-family:inherit;font-size:0.95rem;font-weight:700;">
+            💾 שמור
+          </button>
+        </div>
+      </div>
+
+      <!-- כפתור עריכה -->
+      <button onclick="handlePrincipalEdit()"
+        id="principal-edit-btn"
+        style="margin-top:14px;padding:7px 18px;border-radius:10px;border:2px dashed var(--gold);background:transparent;cursor:pointer;font-family:inherit;font-size:0.88rem;color:var(--muted);">
+        ✏️ עריכת דבר המנהל
+      </button>
+    </div>
+  </section>
+
+  <!-- CLASSES GRID -->
+  <section class="classes-section">
+    <div class="section-heading">
+      <h2>הכיתות שלנו</h2>
+      <p>לחצו על כיתה כדי לראות את הזיכרונות שלה ולהוסיף חוויות חדשות</p>
+    </div>
+    <div class="classes-grid" id="classes-grid"></div>
+  </section>
+
+  <footer class="footer">ממ"ד השחר • שנת תשפ"ו • כל הזיכרונות שמורים עם אהבה ❤️</footer>
+</div>
+
+<!-- ============================================================
+     CLASS PAGE (hidden by default, populated dynamically)
+     ============================================================ -->
+<div id="class-page" style="display:none">
+  <div class="class-page-wrap page" id="class-page-content"></div>
+</div>
+
+<!-- ============================================================
+     PASSWORD MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="password-modal">
+  <div class="modal-box">
+    <div style="font-size:2.6rem;margin-bottom:12px">🔐</div>
+    <h3>הזדהות</h3>
+    <p>הזינו את הסיסמה המשותפת כדי להוסיף חוויה לכיתה</p>
+    <input
+      type="password"
+      id="password-input"
+      class="modal-input"
+      placeholder="סיסמה"
+      onkeydown="if(event.key==='Enter')checkPassword()"
+    >
+    <div id="pw-error" style="color:var(--coral);font-size:0.88rem;margin-bottom:12px;display:none">
+      ❌ סיסמה שגויה. נסו שוב.
+    </div>
+    <div class="modal-btn-row">
+      <button class="modal-btn-primary" onclick="checkPassword()">כניסה</button>
+      <button class="modal-btn-cancel" onclick="closePasswordModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     UPLOAD PROGRESS OVERLAY
+     ============================================================ -->
+<div id="progress-overlay">
+  <div class="progress-box">
+    <div class="spinner"></div>
+    <p class="progress-msg" id="progress-msg">מכין העלאה...</p>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     LIGHTBOX
+     ============================================================ -->
+<div id="lightbox" onclick="lbBgClick(event)">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-nav">
+    <button class="lb-btn" onclick="lbPrev()">&#8250;</button>
+    <span id="lb-counter"></span>
+    <button class="lb-btn" onclick="lbNext()">&#8249;</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ============================================================
+     SCRIPT
+     ============================================================ -->
+<script>
+/* ================================================================
+   🔧 REPLACE WITH YOUR FIREBASE CONFIG
+   ─────────────────────────────────────────────────────────────
+   1. Go to https://console.firebase.google.com
+   2. Create / open your project
+   3. Project Settings → Your apps → Add app (Web) → Copy config
+   4. Paste the values below
+   ─────────────────────────────────────────────────────────────
+   FIRESTORE RULES (set in Firebase Console → Firestore → Rules):
+   ─────────────────────────────────────────────────────────────
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /experiences/{doc} {
+         allow read: if true;
+         allow write: if true;   // client-side password is the only gate
+       }
+     }
+   }
+   ─────────────────────────────────────────────────────────────
+   STORAGE RULES (Firebase Console → Storage → Rules):
+   ─────────────────────────────────────────────────────────────
+   rules_version = '2';
+   service firebase.storage {
+     match /b/{bucket}/o {
+       match /{allPaths=**} {
+         allow read: if true;
+         allow write: if request.resource.size < 6 * 1024 * 1024;
+       }
+     }
+   }
+   ─────────────────────────────────────────────────────────────
+   FIRESTORE INDEX (create in Console → Firestore → Indexes):
+   Collection: experiences  |  Fields: classId ASC, createdAt DESC
+   (Firebase will show a direct link in the browser console
+    the first time you open a class page — just click it.)
+   ================================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCpmA8ql8W4EczfTZv6CeNEFUDVEdGKz4E",
+  authDomain: "hashachar-school.firebaseapp.com",
+  projectId: "hashachar-school",
+  storageBucket: "hashachar-school.firebasestorage.app",
+  messagingSenderId: "600004908807",
+  appId: "1:600004908807:web:eaf008b69bf891f71217a2"
+};
+
+/* ================================================================
+   FIREBASE INIT
+   ================================================================ */
+const IS_CONFIGURED = !firebaseConfig.apiKey.startsWith('YOUR_');
+
+if (!IS_CONFIGURED) {
+  document.getElementById('config-warning').style.display = 'block';
+}
+
+let db, storage;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db      = firebase.firestore();
+  storage = firebase.storage();
+} catch(e) {
+  console.error('Firebase init failed:', e);
+}
+
+/* ================================================================
+   SHARED UPLOAD PASSWORD  (client-side gate only)
+   ================================================================ */
+const UPLOAD_PASSWORD = 'השחר2026';
+const SESSION_KEY     = 'hashChahar_authed_v1';
+
+function isAuthed()  { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+function markAuthed(){ sessionStorage.setItem(SESSION_KEY, '1'); }
+
+/* ================================================================
+   CLASSES CONFIG
+   ================================================================ */
+const CLASSES = [
+  { id:'gan', name:'גן גפן', grade:'gan', emoji:'🌿', color:'#6BCB77', tc:'#1B5E20' },
+  { id:'aleph1', name:'כתה א׳1', grade:'aleph', emoji:'🌟', color:'#FFD700', tc:'#5D4037' },
+  { id:'aleph2', name:'כתה א׳2', grade:'aleph', emoji:'⭐', color:'#FFD700', tc:'#5D4037' },
+  { id:'bet1',   name:'כתה ב׳1', grade:'bet',   emoji:'🦋', color:'#87CEEB', tc:'#1565C0' },
+  { id:'bet2',   name:'כתה ב׳2', grade:'bet',   emoji:'🌸', color:'#87CEEB', tc:'#1565C0' },
+  { id:'gimel1', name:'כתה ג׳1', grade:'gimel', emoji:'🌈', color:'#FF6B6B', tc:'#B71C1C' },
+  { id:'gimel2', name:'כתה ג׳2', grade:'gimel', emoji:'🎨', color:'#FF6B6B', tc:'#B71C1C' },
+  { id:'gimel3', name:'כתה ג׳3', grade:'gimel', emoji:'🎭', color:'#FF8C69', tc:'#B71C1C' },
+  { id:'dalet',  name:'כתה ד׳',  grade:'dalet', emoji:'🚀', color:'#98D8C8', tc:'#004D40' },
+  { id:'heh',    name:'כתה ה׳',  grade:'heh',   emoji:'🎭', color:'#C9B1FF', tc:'#4527A0' },
+  { id:'vav1',   name:'כתה ו׳1', grade:'vav',   emoji:'🏆', color:'#FFB347', tc:'#E65100' },
+  { id:'vav2',   name:'כתה ו׳2', grade:'vav',   emoji:'🎓', color:'#FFB347', tc:'#E65100' },
+];
+
+/* ================================================================
+   PLACEHOLDER SAMPLE CARDS (shown when class is empty)
+   ================================================================ */
+const SAMPLES_BY_GRADE = {
+  gan: [
+    { title:'בוקר גן שמח', desc:'התחלנו את הבוקר עם שיר, ריקוד ומעגל שיחה. כל ילד סיפר משהו שהביא מהבית.', date:'ספטמבר 2025' },
+    { title:'יום הטבע בגן', desc:'יצאנו לחצר, אספנו עלים וסיפרנו סיפורים. יום של גילויים קטנים וגדולים!', date:'אוקטובר 2025' },
+  ],
+  aleph: [
+    { title:'יום הכיתה הראשון', desc:'בתחילת השנה הכרנו אחד את השני, הצגנו את עצמנו ויצרנו כרטיסי ביקור אישיים. יום שמח ומלא חיוכים!', date:'ספטמבר 2025' },
+    { title:'טיול לפארק', desc:'יצאנו לטיול נפלא בפארק הלאומי. הילדים רצו, שיחקו ואספו עלים צבעוניים. יום שמח ומלא אנרגיה!', date:'אוקטובר 2025' },
+  ],
+  bet: [
+    { title:'מסיבת חנוכה', desc:'חגגנו חנוכה עם סופגניות ביתיות שאפינו יחד. כל ילד הביא סביבון מהבית וסיפר על המסורת המשפחתית.', date:'דצמבר 2025' },
+    { title:'פרויקט הגינה', desc:'שתלנו גינה קטנה בחצר בית הספר. לימדנו על זרעים ואיך מטפלים בצמחים. שבועיים אחר כך ראינו נבטים ראשונים!', date:'נובמבר 2025' },
+  ],
+  gimel: [
+    { title:'יום מדע', desc:'עשינו התפרצות הר געש מבצק מלח וסודה לשתייה! הילדים צרחו מהתרגשות כשה"לבה" זרמה.', date:'פברואר 2026' },
+    { title:'שיעור אמנות – קנקנים', desc:'בהשראת אמנות יוונית עיצבנו קנקנים מחימר. כל ילד חקק דבר שחשוב לו בחייו.', date:'מרץ 2026' },
+  ],
+  dalet: [
+    { title:'ביקור בכנסת', desc:'נסענו לירושלים לבקר בכנסת. ראינו את האולם הגדול ולמדנו איך מתקבלות החלטות במדינה.', date:'נובמבר 2025' },
+    { title:'תחרות הקריאה', desc:'במשך חודש שלם קראנו ספרים ורשמנו בפנקסים — בסוף חגגנו את כל הקוראים עם תעודות ופרסים.', date:'אפריל 2026' },
+  ],
+  heh: [
+    { title:'פרויקט המורשת', desc:'חקרנו את תולדות המשפחה שלנו ויצרנו עצי יוחסין. כל ילד גילה סיפורים מרתקים על ארצות מוצא שונות.', date:'דצמבר 2025' },
+    { title:'מסע לטבע', desc:'יום שלם בשמורת טבע — הכרנו צמחים ובעלי חיים, הלכנו בשביל ציפורים וישבנו לשמוע קולות הטבע.', date:'מרץ 2026' },
+  ],
+  vav: [
+    { title:'ספר הכיתה', desc:'יצרנו ספר כיתה עם תמונות, מכתבים ממורים ועמוד אישי לכל תלמיד עם חלומות לעתיד.', date:'מאי 2026' },
+    { title:'טיול סיום לצפון', desc:'שלושה ימים בגליל — טיולים, לגלגת, שחייה בבריכת טבע ושירה סביב המדורה. זיכרון לכל החיים!', date:'אפריל 2026' },
+  ],
+};
+
+/* ================================================================
+   GLOBAL STATE
+   ================================================================ */
+let currentClassId   = null;
+let firestoreUnsub   = null;   // Firestore onSnapshot unsubscriber
+let uploadFiles      = [];     // File objects staged for upload
+let uploadPreviews   = [];     // compressed base64 for preview
+let lbImages         = [];
+let lbIndex          = 0;
+let editUploadFiles  = {};
+
+/* ================================================================
+   RENDER CLASSES GRID
+   ================================================================ */
+function renderClassesGrid() {
+  document.getElementById('classes-grid').innerHTML = CLASSES.map(cls => `
+    <div class="class-card" style="border-top-color:${cls.color}" onclick="showClass('${cls.id}')">
+      <span class="class-emoji">${cls.emoji}</span>
+      <div class="class-name">${cls.name}</div>
+      <button class="class-enter-btn" style="border-color:${cls.color};color:${cls.tc}">
+        כניסה לכיתה
+      </button>
+    </div>
+  `).join('');
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+function showHome() {
+  stopListening();
+  currentClassId = null;
+  uploadFiles = [];
+  document.getElementById('home-page').style.display  = '';
+  document.getElementById('class-page').style.display = 'none';
+  window.scrollTo({ top:0, behavior:'smooth' });
+  setTimeout(startConfetti, 120);
+}
+
+function showClass(classId) {
+  const cls = CLASSES.find(c => c.id === classId);
+  if (!cls) return;
+  stopListening();
+  currentClassId = classId;
+  uploadFiles = [];
+  uploadPreviews = [];
+
+  document.getElementById('home-page').style.display  = 'none';
+  document.getElementById('class-page').style.display = '';
+
+  renderClassShell(cls);
+  startListening(cls);
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ================================================================
+   RENDER CLASS SHELL (static parts)
+   ================================================================ */
+function renderClassShell(cls) {
+  const html = `
+    <button class="back-btn" onclick="showHome()">&#8250; חזרה לעמוד הבית</button>
+
+    <div class="class-page-header">
+      <span class="class-page-emoji">${cls.emoji}</span>
+      <h1 class="class-page-name" style="color:${cls.tc}">${cls.name}</h1>
+      <p class="class-page-year">ספר זיכרונות תשפ"ו</p>
+    </div>
+
+    <h2 class="feed-heading">📖 זיכרונות הכיתה</h2>
+    <div id="experiences-feed" class="experiences-feed">
+      <div class="loading-pulse">⏳ טוען זיכרונות...</div>
+    </div>
+
+    <button class="add-exp-btn" onclick="handleAddClick()">
+      <span>✏️</span> הוסף חוויה לכיתה
+    </button>
+
+    <div id="upload-section">
+      <h2 class="upload-heading">✏️ חוויה חדשה</h2>
+      <div class="form-group">
+        <label class="form-label" for="exp-title">
+          <span class="req">*</span> כותרת החוויה
+        </label>
+        <input class="form-input" id="exp-title" type="text"
+          placeholder="לדוגמה: טיול בוץ, הצגת סוף שנה...">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="exp-desc">תיאור</label>
+        <textarea class="form-input" id="exp-desc"
+          placeholder="ספרו מה קרה, מה הרגשתם, מה היה מיוחד..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="exp-date">תאריך</label>
+        <input class="form-input" id="exp-date" type="text"
+          placeholder="לדוגמה: מאי 2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">תמונות (עד 6)</label>
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="photo-input" accept="image/*" multiple
+            onchange="handleFileSelect(this.files)">
+          <div class="drop-zone-icon">📸</div>
+          <div class="drop-zone-text">גררו תמונות לכאן או לחצו לבחירה</div>
+          <div class="drop-zone-hint">JPG / PNG / WEBP • עד 6 תמונות</div>
+        </div>
+        <div class="photo-previews" id="photo-previews"></div>
+      </div>
+      <button class="submit-btn" id="submit-btn" onclick="submitExperience()">
+        ✨ הוסף חוויה
+      </button>
+    </div>
+  `;
+
+  const content = document.getElementById('class-page-content');
+  content.innerHTML = html;
+  content.classList.remove('page');
+  void content.offsetWidth;
+  content.classList.add('page');
+
+  initDropZone();
+}
+
+/* ================================================================
+   FIRESTORE REAL-TIME LISTENER
+   ================================================================ */
+function startListening(cls) {
+  if (!db) {
+    renderFeedError('Firebase אינו מוגדר. עדכנו את firebaseConfig.');
+    return;
+  }
+
+  firestoreUnsub = db.collection('experiences')
+    .where('classId', '==', cls.id)
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(
+      snap => renderFeed(snap, cls),
+      err  => {
+        console.error('Firestore:', err);
+        // Check for index error and give helpful message
+        const isIndex = err.message && err.message.includes('index');
+        const msg = isIndex
+          ? 'נדרש אינדקס Firestore — לחצו על הקישור בקונסול הדפדפן ליצירתו.'
+          : 'שגיאה בטעינת הזיכרונות. רעננו את הדף.';
+        renderFeedError(msg);
+      }
+    );
+}
+
+function stopListening() {
+  if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+}
+
+function renderFeed(snap, cls) {
+  const feed = document.getElementById('experiences-feed');
+  if (!feed) return;
+
+  if (snap.empty) {
+    renderPlaceholders(feed, cls.grade);
+    return;
+  }
+
+  feed.innerHTML = snap.docs.map(doc => {
+    const d = doc.data();
+    return buildMemoryCard({
+      id: doc.id,
+      title: d.title || '',
+      description: d.description || '',
+      date: d.date || '',
+      imageUrls: d.imageUrls || [],
+    });
+  }).join('');
+}
+
+function renderFeedError(msg) {
+  const feed = document.getElementById('experiences-feed');
+  if (feed) feed.innerHTML = `<div class="feed-error">⚠️ ${escHtml(msg)}</div>`;
+}
+
+function renderPlaceholders(feed, grade) {
+  const samples = SAMPLES_BY_GRADE[grade] || SAMPLES_BY_GRADE['aleph'];
+  feed.innerHTML = `
+    <div class="empty-state">
+      🌱 הכיתה ממתינה לזיכרון הראשון שלה!<br>
+      <small>להלן כמה כרטיסים לדוגמה — הוסיפו חוויה אמיתית למטה ✨</small>
+    </div>
+    ${samples.map(s => `
+      <div class="placeholder-card">
+        <span class="placeholder-badge">דוגמה</span>
+        <div class="memory-card-top">
+          <span class="memory-title">${escHtml(s.title)}</span>
+          <span class="memory-date">${escHtml(s.date)}</span>
+        </div>
+        <p class="memory-desc">${escHtml(s.desc)}</p>
+      </div>
+    `).join('')}
+  `;
+}
+
+function buildMemoryCard(exp) {
+  const photosHtml = exp.imageUrls.length
+    ? `<div class="memory-photos">
+        ${exp.imageUrls.map((url, i) =>
+          `<img class="memory-photo" src="${escHtml(url)}" alt="תמונה ${i+1}" loading="lazy"
+            onclick="openLightbox(${JSON.stringify(exp.imageUrls).replace(/"/g,'&quot;')},${i})">`
+        ).join('')}
+       </div>`
+    : '';
+
+  return `
+    <div class="memory-card" id="card-${exp.id}">
+      <div id="view-${exp.id}">
+        <div class="memory-card-top">
+          <span class="memory-title">${escHtml(exp.title)}</span>
+          <span class="memory-date">${escHtml(exp.date)}
+            <button onclick="startEditCard('${exp.id}')" style="margin-right:8px;background:none;border:none;cursor:pointer;font-size:0.9em;">✏️ עריכה</button>
+          </span>
+        </div>
+        <p class="memory-desc">${escHtml(exp.description)}</p>
+        ${photosHtml}
+      </div>
+      <div id="edit-${exp.id}" style="display:none;padding:12px;border-top:1px solid var(--border);">
+        <input id="edit-title-${exp.id}" type="text" value="${escHtml(exp.title)}" style="width:100%;margin-bottom:8px;padding:6px;font-size:1em;" placeholder="כותרת">
+        <textarea id="edit-desc-${exp.id}" rows="3" style="width:100%;margin-bottom:8px;padding:6px;font-size:1em;" placeholder="תיאור">${escHtml(exp.description)}</textarea>
+        <input id="edit-date-${exp.id}" type="text" value="${escHtml(exp.date)}" style="width:100%;margin-bottom:8px;padding:6px;font-size:1em;" placeholder="תאריך">
+        <label style="display:block;font-size:0.9em;font-weight:600;margin-bottom:4px;">הוספת תמונות נוספות</label>
+        <input type="file" accept="image/*" multiple onchange="handleEditPhotos('${exp.id}', this.files)" style="margin-bottom:8px;">
+        <div id="edit-previews-${exp.id}" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="saveEditCard('${exp.id}')" style="padding:6px 14px;cursor:pointer;">💾 שמור</button>
+          <button onclick="cancelEditCard('${exp.id}')" style="padding:6px 14px;cursor:pointer;">ביטול</button>
+          <button onclick="deleteCard('${exp.id}')" style="padding:6px 14px;cursor:pointer;color:#c00;">🗑️ מחק</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function startEditCard(id) {
+  if (!isAuthed()) { openPasswordModal(); return; }
+  document.getElementById('view-' + id).style.display = 'none';
+  document.getElementById('edit-' + id).style.display = '';
+}
+
+function cancelEditCard(id) {
+  document.getElementById('view-' + id).style.display = '';
+  document.getElementById('edit-' + id).style.display = 'none';
+}
+
+function handleEditPhotos(id, files) {
+  editUploadFiles[id] = Array.from(files);
+  const previewEl = document.getElementById('edit-previews-' + id);
+  if (!previewEl) return;
+  previewEl.innerHTML = '';
+  editUploadFiles[id].forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:70px;height:56px;object-fit:cover;border-radius:6px;';
+      previewEl.appendChild(img);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+async function saveEditCard(id) {
+  const title = document.getElementById('edit-title-' + id).value.trim();
+  const desc  = document.getElementById('edit-desc-'  + id).value.trim();
+  const date  = document.getElementById('edit-date-'  + id).value.trim();
+  if (!title) { showToast('נא להזין כותרת', 'error'); return; }
+  try {
+    const docSnap = await db.collection('experiences').doc(id).get();
+    const existingUrls = docSnap.data().imageUrls || [];
+    const newUrls = [];
+    const files = editUploadFiles[id] || [];
+    for (let i = 0; i < files.length; i++) {
+      const url = await compressAndUpload(files[i], currentClassId);
+      newUrls.push(url);
+    }
+    await db.collection('experiences').doc(id).update({
+      title, description: desc, date,
+      imageUrls: [...existingUrls, ...newUrls]
+    });
+    editUploadFiles[id] = [];
+    showToast('✅ החוויה עודכנה בהצלחה!', 'success');
+  } catch(e) {
+    showToast('שגיאה בשמירה: ' + e.message, 'error');
+  }
+}
+
+async function deleteCard(id) {
+  if (!confirm('למחוק את החוויה הזו לצמיתות?')) return;
+  try {
+    await db.collection('experiences').doc(id).delete();
+    showToast('החוויה נמחקה', 'info');
+  } catch(e) {
+    showToast('שגיאה במחיקה: ' + e.message, 'error');
+  }
+}
+
+function escHtml(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ================================================================
+   PASSWORD MODAL
+   ================================================================ */
+function handleAddClick() {
+  if (isAuthed()) {
+    openUploadSection();
+  } else {
+    openPasswordModal();
+  }
+}
+
+function openPasswordModal() {
+  const el = document.getElementById('password-modal');
+  el.classList.add('open');
+  setTimeout(() => document.getElementById('password-input').focus(), 80);
+  document.getElementById('pw-error').style.display = 'none';
+  document.getElementById('password-input').value = '';
+  document.getElementById('password-input').classList.remove('shake');
+}
+
+function closePasswordModal() {
+  document.getElementById('password-modal').classList.remove('open');
+}
+
+function checkPassword() {
+  const val = document.getElementById('password-input').value;
+  if (val === UPLOAD_PASSWORD) {
+    markAuthed();
+    closePasswordModal();
+    openUploadSection();
+  } else {
+    const input = document.getElementById('password-input');
+    input.classList.remove('shake');
+    void input.offsetWidth; // reflow to restart animation
+    input.classList.add('shake');
+    document.getElementById('pw-error').style.display = 'block';
+    input.value = '';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+/* ================================================================
+   UPLOAD SECTION
+   ================================================================ */
+function openUploadSection() {
+  const section = document.getElementById('upload-section');
+  if (!section) return;
+  section.classList.add('open');
+  section.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function initDropZone() {
+  const dz = document.getElementById('drop-zone');
+  if (!dz) return;
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', ()=> dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    handleFileSelect(e.dataTransfer.files);
+  });
+}
+
+function handleFileSelect(files) {
+  const remaining = 6 - uploadFiles.length;
+  if (remaining <= 0) { showToast('ניתן להעלות עד 6 תמונות', 'info'); return; }
+  Array.from(files).slice(0, remaining).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    uploadFiles.push(f);
+    // Generate preview
+    const reader = new FileReader();
+    reader.onload = e => {
+      uploadPreviews.push(e.target.result);
+      renderPhotoPreview();
+    };
+    reader.readAsDataURL(f);
+  });
+  // Reset input so same file can be re-selected
+  const inp = document.getElementById('photo-input');
+  if (inp) inp.value = '';
+}
+
+function renderPhotoPreview() {
+  const c = document.getElementById('photo-previews');
+  if (!c) return;
+  c.innerHTML = uploadPreviews.map((src, i) => `
+    <div class="preview-item">
+      <img class="preview-img" src="${src}" alt="">
+      <button class="preview-remove" onclick="removePreview(${i})" title="הסר">✕</button>
+    </div>
+  `).join('');
+}
+
+function removePreview(i) {
+  uploadFiles.splice(i, 1);
+  uploadPreviews.splice(i, 1);
+  renderPhotoPreview();
+}
+
+/* ================================================================
+   SUBMIT EXPERIENCE
+   ================================================================ */
+async function submitExperience() {
+  if (!IS_CONFIGURED) {
+    showToast('Firebase לא מוגדר — עדכנו את firebaseConfig', 'error');
+    return;
+  }
+
+  const title = (document.getElementById('exp-title').value || '').trim();
+  const desc  = (document.getElementById('exp-desc').value  || '').trim();
+  const date  = (document.getElementById('exp-date').value  || '').trim();
+
+  if (!title) {
+    showToast('נא להזין כותרת לחוויה', 'error');
+    document.getElementById('exp-title').focus();
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  openProgressOverlay();
+
+  try {
+    /* ── 1. Compress + upload images ── */
+    const imageUrls = [];
+    for (let i = 0; i < uploadFiles.length; i++) {
+      setProgress(
+        `מכווץ ומעלה תמונה ${i+1} מתוך ${uploadFiles.length}...`,
+        Math.round(((i) / (uploadFiles.length + 1)) * 100)
+      );
+      const url = await compressAndUpload(uploadFiles[i], currentClassId);
+      imageUrls.push(url);
+    }
+
+    /* ── 2. Save to Firestore ── */
+    setProgress('שומר את החוויה...', 95);
+    await db.collection('experiences').add({
+      classId:     currentClassId,
+      title,
+      description: desc,
+      date:        date || formatHebDate(new Date()),
+      imageUrls,
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    setProgress('הסתיים!', 100);
+    await delay(400);
+
+    closeProgressOverlay();
+    resetUploadForm();
+    showToast('✅ החוויה נוספה בהצלחה! כולם יראו אותה כעת.', 'success');
+
+  } catch(err) {
+    console.error('Upload error:', err);
+    closeProgressOverlay();
+    const msg = err.code === 'storage/unauthorized'
+      ? 'שגיאת הרשאה — בדקו את חוקי ה-Storage ב-Firebase'
+      : 'שגיאה בהעלאה. בדקו את החיבור ונסו שוב.';
+    showToast(msg, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function compressAndUpload(file, classId) {
+  let compressedFile;
+  try {
+    compressedFile = await imageCompression(file, {
+      maxSizeMB:         0.75,
+      maxWidthOrHeight:  1280,
+      useWebWorker:      true,
+      fileType:          'image/jpeg',
+    });
+  } catch(e) {
+    console.warn('Compression failed, using original:', e);
+    compressedFile = file;
+  }
+
+  const safeName = `${Date.now()}_${file.name.replace(/[^a-z0-9.\-_]/gi,'_')}`;
+  const ref      = storage.ref(`experiences/${classId}/${safeName}`);
+  const snap     = await ref.put(compressedFile, { contentType:'image/jpeg' });
+  return await snap.ref.getDownloadURL();
+}
+
+function resetUploadForm() {
+  ['exp-title','exp-desc','exp-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  uploadFiles    = [];
+  uploadPreviews = [];
+  renderPhotoPreview();
+}
+
+function formatHebDate(d) {
+  const m = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני',
+             'יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  return `${m[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/* ================================================================
+   PROGRESS OVERLAY HELPERS
+   ================================================================ */
+function openProgressOverlay() {
+  document.getElementById('progress-overlay').classList.add('open');
+}
+function closeProgressOverlay() {
+  document.getElementById('progress-overlay').classList.remove('open');
+}
+function setProgress(msg, pct) {
+  const m = document.getElementById('progress-msg');
+  const b = document.getElementById('progress-bar');
+  if (m) m.textContent = msg;
+  if (b) b.style.width = (pct||0) + '%';
+}
+
+/* ================================================================
+   LIGHTBOX
+   ================================================================ */
+function openLightbox(images, idx) {
+  lbImages = images;
+  lbIndex  = idx;
+  updateLb();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function lbBgClick(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+function lbNext() { lbIndex = (lbIndex+1) % lbImages.length; updateLb(); }
+function lbPrev() { lbIndex = (lbIndex-1+lbImages.length) % lbImages.length; updateLb(); }
+function updateLb() {
+  document.getElementById('lb-img').src       = lbImages[lbIndex];
+  document.getElementById('lb-counter').textContent = `${lbIndex+1} / ${lbImages.length}`;
+}
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')       closeLightbox();
+  if (e.key === 'ArrowLeft')    lbNext();
+  if (e.key === 'ArrowRight')   lbPrev();
+});
+
+/* ================================================================
+   TOAST
+   ================================================================ */
+let toastTimer = null;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast show ${type}`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className='toast'; }, 3400);
+}
+
+/* ================================================================
+   CONFETTI
+   ================================================================ */
+const CONFETTI_COLORS = ['#FFD700','#FF6B6B','#87CEEB','#98D8C8','#C9B1FF','#FFB347','#6BCB77','#FF85A1'];
+let   confettiRaf     = null;
+
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  const W = canvas.width, H = canvas.height;
+
+  const particles = Array.from({ length: 90 }, () => ({
+    x:      Math.random() * W,
+    y:      Math.random() * H - H,
+    r:      Math.random() * 7 + 3,
+    color:  CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+    speed:  Math.random() * 1.6 + 0.5,
+    drift:  Math.random() * 1.8 - 0.9,
+    angle:  0,
+    spin:   Math.random() * 0.07 + 0.02,
+    shape:  Math.random() < 0.5 ? 'rect' : 'circle',
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.y     += p.speed;
+      p.x     += p.drift;
+      p.angle += p.spin;
+      if (p.y > H + 20) { p.y = -20; p.x = Math.random() * W; }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle   = p.color;
+      ctx.globalAlpha = 0.8;
+      if (p.shape === 'rect') ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 1.5);
+      else { ctx.beginPath(); ctx.arc(0,0,p.r/2,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    });
+    confettiRaf = requestAnimationFrame(draw);
+  }
+
+  if (confettiRaf) cancelAnimationFrame(confettiRaf);
+  draw();
+  setTimeout(() => {
+    cancelAnimationFrame(confettiRaf);
+    ctx.clearRect(0,0,W,H);
+  }, 6500);
+}
+
+/* ================================================================
+   UTILS
+   ================================================================ */
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+/* ================================================================
+   PRINCIPAL MESSAGE
+   ================================================================ */
+async function loadPrincipalMessage() {
+  if (!IS_CONFIGURED) return;
+  try {
+    const doc = await db.collection('settings').doc('principal').get();
+    if (doc.exists && doc.data().message) {
+      document.getElementById('principal-text-display').textContent = doc.data().message;
+      document.getElementById('principal-sig-display').style.display = '';
+    }
+  } catch(e) { console.warn('principal load:', e); }
+}
+
+function handlePrincipalEdit() {
+  const pwd = prompt('הכניסו סיסמה לעריכה:');
+  if (pwd !== UPLOAD_PASSWORD) { alert('סיסמה שגויה'); return; }
+  const current = document.getElementById('principal-text-display').textContent;
+  const placeholder = 'לחצו על כפתור העריכה כדי להוסיף את דבר המנהל...';
+  document.getElementById('principal-textarea').value = current === placeholder ? '' : current;
+  document.getElementById('principal-edit-form').style.display = '';
+  document.getElementById('principal-edit-btn').style.display = 'none';
+}
+
+function cancelPrincipalEdit() {
+  document.getElementById('principal-edit-form').style.display = 'none';
+  document.getElementById('principal-edit-btn').style.display = '';
+}
+
+async function savePrincipalMessage() {
+  const text = document.getElementById('principal-textarea').value.trim();
+  if (!text) { alert('נא להזין טקסט'); return; }
+  try {
+    await db.collection('settings').doc('principal').set({ message: text });
+    document.getElementById('principal-text-display').textContent = text;
+    document.getElementById('principal-sig-display').style.display = '';
+    cancelPrincipalEdit();
+    showToast('דבר המנהל נשמר בהצלחה! ✅');
+  } catch(e) {
+    alert('שגיאה בשמירה: ' + e.message);
+  }
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+renderClassesGrid();
+loadPrincipalMessage();
+startConfetti();
+</script>
+</body>
+</html>
