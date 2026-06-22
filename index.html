@@ -863,9 +863,12 @@ try {
    ================================================================ */
 const UPLOAD_PASSWORD = 'השחר2026';
 const SESSION_KEY     = 'hashChahar_authed_v1';
+const LOCK_DATE       = new Date('2026-06-24T23:59:59');
+const LOCK_MSG        = 'האתר נעול לעריכה — תודה לכל מי שתרם זיכרונות לשנה זו! 🎉';
 
 function isAuthed()  { return sessionStorage.getItem(SESSION_KEY) === '1'; }
 function markAuthed(){ sessionStorage.setItem(SESSION_KEY, '1'); }
+function isLocked()  { return new Date() > LOCK_DATE; }
 
 /* ================================================================
    CLASSES CONFIG
@@ -997,9 +1000,10 @@ function renderClassShell(cls) {
       <div class="loading-pulse">⏳ טוען זיכרונות...</div>
     </div>
 
+    ${isLocked() ? '' : `
     <button class="add-exp-btn" onclick="handleAddClick()">
       <span>✏️</span> הוסף חוויה לכיתה
-    </button>
+    </button>`}
 
     <div id="upload-section">
       <h2 class="upload-heading">✏️ חוויה חדשה</h2>
@@ -1177,7 +1181,7 @@ function buildMemoryCard(exp) {
         <div class="memory-card-top">
           <span class="memory-title">${escHtml(exp.title)}</span>
           <span class="memory-date">${escHtml(exp.date)}
-            <button onclick="startEditCard('${exp.id}')" style="margin-right:8px;background:none;border:none;cursor:pointer;font-size:0.9em;">✏️ עריכה</button>
+            ${isLocked() ? '' : `<button onclick="startEditCard('${exp.id}')" style="margin-right:8px;background:none;border:none;cursor:pointer;font-size:0.9em;">✏️ עריכה</button>`}
           </span>
         </div>
         <p class="memory-desc">${escHtml(exp.description)}</p>
@@ -1201,6 +1205,7 @@ function buildMemoryCard(exp) {
 }
 
 function startEditCard(id) {
+  if (isLocked()) { showToast(LOCK_MSG, 'info'); return; }
   if (!isAuthed()) { openPasswordModal(); return; }
   document.getElementById('view-' + id).style.display = 'none';
   document.getElementById('edit-' + id).style.display = '';
@@ -1254,6 +1259,7 @@ async function saveEditCard(id) {
 }
 
 async function deleteCard(id) {
+  if (isLocked()) { showToast(LOCK_MSG, 'info'); return; }
   if (!confirm('למחוק את החוויה הזו לצמיתות?')) return;
   try {
     await db.collection('experiences').doc(id).delete();
@@ -1273,6 +1279,7 @@ function escHtml(s) {
    PASSWORD MODAL
    ================================================================ */
 function handleAddClick() {
+  if (isLocked()) { showToast(LOCK_MSG, 'info'); return; }
   if (isAuthed()) {
     openUploadSection();
   } else {
@@ -1296,6 +1303,11 @@ function closePasswordModal() {
 function checkPassword() {
   const val = document.getElementById('password-input').value;
   if (val === UPLOAD_PASSWORD) {
+    if (isLocked()) {
+      closePasswordModal();
+      showToast(LOCK_MSG, 'info');
+      return;
+    }
     markAuthed();
     closePasswordModal();
     openUploadSection();
@@ -1601,6 +1613,7 @@ async function loadPrincipalMessage() {
 }
 
 function handlePrincipalEdit() {
+  if (isLocked()) { showToast(LOCK_MSG, 'info'); return; }
   const pwd = prompt('הכניסו סיסמה לעריכה:');
   if (pwd !== UPLOAD_PASSWORD) { alert('סיסמה שגויה'); return; }
   const current = document.getElementById('principal-text-display').textContent;
