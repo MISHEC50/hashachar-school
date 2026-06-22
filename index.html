@@ -290,10 +290,33 @@ img { max-width: 100%; display: block; }
 }
 .back-btn:hover { border-color:var(--gold); background:#FFFDE7; }
 
-.class-page-header { text-align:center; padding:16px 0 36px; }
+.class-page-header { text-align:center; padding:16px 0 36px; position:relative; overflow:hidden; }
 .class-page-emoji  { font-size:4.5rem; display:block; margin-bottom:12px; }
 .class-page-name   { font-size:clamp(2rem,5vw,3.2rem); font-weight:900; margin-bottom:6px; }
 .class-page-year   { font-size:1rem; color:var(--muted); }
+
+/* =====================================================
+   HEADER SLIDESHOW
+   ===================================================== */
+.header-slideshow { position:absolute; inset:0; z-index:0; }
+.header-slide {
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  opacity:0; transition:opacity 1.5s ease;
+}
+.header-slide.active { opacity:1; }
+.header-overlay {
+  position:absolute; inset:0; z-index:1;
+  background:linear-gradient(rgba(0,0,0,0.38),rgba(0,0,0,0.38));
+  display:none;
+}
+.header-content { position:relative; z-index:2; }
+.class-page-header.has-slideshow { padding:60px 24px 80px; }
+.class-page-header.has-slideshow .class-page-name {
+  color:#fff !important;
+  text-shadow:0 2px 10px rgba(0,0,0,0.55);
+}
+.class-page-header.has-slideshow .class-page-year { color:rgba(255,255,255,0.85); }
 
 /* =====================================================
    EXPERIENCES FEED
@@ -906,6 +929,7 @@ let uploadPreviews   = [];     // compressed base64 for preview
 let lbImages         = [];
 let lbIndex          = 0;
 let editUploadFiles  = {};
+let slideshowTimer   = null;
 
 /* ================================================================
    RENDER CLASSES GRID
@@ -958,10 +982,14 @@ function renderClassShell(cls) {
   const html = `
     <button class="back-btn" onclick="showHome()">&#8250; חזרה לעמוד הבית</button>
 
-    <div class="class-page-header">
-      <span class="class-page-emoji">${cls.emoji}</span>
-      <h1 class="class-page-name" style="color:${cls.tc}">${cls.name}</h1>
-      <p class="class-page-year">ספר זיכרונות תשפ"ו</p>
+    <div class="class-page-header" id="class-page-header">
+      <div class="header-slideshow" id="header-slideshow"></div>
+      <div class="header-overlay" id="header-overlay"></div>
+      <div class="header-content">
+        <span class="class-page-emoji">${cls.emoji}</span>
+        <h1 class="class-page-name" style="color:${cls.tc}">${cls.name}</h1>
+        <p class="class-page-year">ספר זיכרונות תשפ"ו</p>
+      </div>
     </div>
 
     <h2 class="feed-heading">📖 זיכרונות הכיתה</h2>
@@ -1046,6 +1074,40 @@ function startListening(cls) {
 
 function stopListening() {
   if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+  if (slideshowTimer) { clearInterval(slideshowTimer); slideshowTimer = null; }
+}
+
+function startHeaderSlideshow(imageUrls) {
+  const container = document.getElementById('header-slideshow');
+  const overlay   = document.getElementById('header-overlay');
+  const header    = document.getElementById('class-page-header');
+  if (!container) return;
+
+  if (slideshowTimer) { clearInterval(slideshowTimer); slideshowTimer = null; }
+
+  if (!imageUrls || imageUrls.length === 0) {
+    container.innerHTML = '';
+    if (overlay) overlay.style.display = 'none';
+    if (header)  header.classList.remove('has-slideshow');
+    return;
+  }
+
+  container.innerHTML = imageUrls.map((url, i) =>
+    `<div class="header-slide${i === 0 ? ' active' : ''}" style="background-image:url('${url.replace(/'/g,'%27')}')"></div>`
+  ).join('');
+
+  if (overlay) overlay.style.display = '';
+  if (header)  header.classList.add('has-slideshow');
+
+  if (imageUrls.length === 1) return;
+
+  let current = 0;
+  const slides = container.querySelectorAll('.header-slide');
+  slideshowTimer = setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 4500);
 }
 
 function renderFeed(snap, cls) {
@@ -1054,11 +1116,14 @@ function renderFeed(snap, cls) {
 
   if (snap.empty) {
     renderPlaceholders(feed, cls.grade);
+    startHeaderSlideshow([]);
     return;
   }
 
+  const allImages = [];
   feed.innerHTML = snap.docs.map(doc => {
     const d = doc.data();
+    if (d.imageUrls) allImages.push(...d.imageUrls);
     return buildMemoryCard({
       id: doc.id,
       title: d.title || '',
@@ -1067,6 +1132,8 @@ function renderFeed(snap, cls) {
       imageUrls: d.imageUrls || [],
     });
   }).join('');
+
+  startHeaderSlideshow(allImages);
 }
 
 function renderFeedError(msg) {
