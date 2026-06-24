@@ -107,6 +107,7 @@ img { max-width: 100%; display: block; }
   transition: all var(--trans);
 }
 .nav-btn:hover { background: #e6c200; transform: translateY(-1px); }
+.nav-logo-img { height:42px; width:auto; object-fit:contain; display:block; }
 
 /* =====================================================
    PAGE TRANSITION
@@ -174,6 +175,21 @@ img { max-width: 100%; display: block; }
 /* =====================================================
    PRINCIPAL
    ===================================================== */
+/* =====================================================
+   PRINCIPAL SLIDESHOW
+   ===================================================== */
+.principal-slideshow {
+  position:relative; width:100%; height:210px;
+  border-radius:12px; overflow:hidden; margin-bottom:20px;
+}
+.principal-slide {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover; object-position:center top;
+  opacity:0; transition:opacity 1.5s ease;
+}
+.principal-slide.active { opacity:1; }
+
 .principal-section {
   max-width: 780px;
   margin: 44px auto 0;
@@ -301,7 +317,8 @@ img { max-width: 100%; display: block; }
 .header-slideshow { position:absolute; inset:0; z-index:0; }
 .header-slide {
   position:absolute; inset:0;
-  background-size:cover; background-position:center;
+  width:100%; height:100%;
+  object-fit:cover; object-position:center;
   opacity:0; transition:opacity 1.5s ease;
 }
 .header-slide.active { opacity:1; }
@@ -623,6 +640,8 @@ textarea.form-input { min-height:96px; resize:vertical; }
    RESPONSIVE
    ===================================================== */
 @media(max-width:640px){
+  .nav-logo-img { height:32px; }
+  .principal-slideshow { height:160px; }
   .hero{ padding:56px 16px 44px; }
   .principal-card{ padding:22px 18px; }
   .classes-grid{ grid-template-columns:repeat(2,1fr); gap:12px; }
@@ -652,7 +671,10 @@ textarea.form-input { min-height:96px; resize:vertical; }
      NAV
      ============================================================ -->
 <nav class="nav">
-  <div class="nav-logo" onclick="showHome()">☀️ ממ"ד השחר</div>
+  <div class="nav-logo" onclick="showHome()">
+    <img src="logo-hashachar.jpg" class="nav-logo-img" alt='לוגו ממ"ד השחר'>
+    ממ"ד השחר
+  </div>
   <button class="nav-btn" onclick="showHome()">🏠 עמוד הבית</button>
 </nav>
 
@@ -676,6 +698,10 @@ textarea.form-input { min-height:96px; resize:vertical; }
   <!-- PRINCIPAL'S MESSAGE -->
   <section class="principal-section">
     <div class="principal-card">
+      <div class="principal-slideshow">
+        <img class="principal-slide active" src="heritage-photo-1.jpeg" alt="חוויות בית הספר">
+        <img class="principal-slide" src="heritage-photo-2.jpeg" alt="אירוע בית הספר">
+      </div>
       <p class="eyebrow">דבר המנהל</p>
       <div class="principal-header">
         <div class="principal-avatar">👨‍🏫</div>
@@ -1097,7 +1123,7 @@ function startHeaderSlideshow(imageUrls) {
   }
 
   container.innerHTML = imageUrls.map((url, i) =>
-    `<div class="header-slide${i === 0 ? ' active' : ''}" style="background-image:url('${url.replace(/'/g,'%27')}')"></div>`
+    `<img class="header-slide${i === 0 ? ' active' : ''}" src="${escHtml(url)}" alt="">`
   ).join('');
 
   if (overlay) overlay.style.display = '';
@@ -1645,9 +1671,21 @@ async function savePrincipalMessage() {
 /* ================================================================
    INIT
    ================================================================ */
+function startPrincipalSlideshow() {
+  const slides = document.querySelectorAll('.principal-slide');
+  if (slides.length < 2) return;
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 4500);
+}
+
 renderClassesGrid();
 loadPrincipalMessage();
 startConfetti();
+startPrincipalSlideshow();
 </script>
 </body>
 </html>
